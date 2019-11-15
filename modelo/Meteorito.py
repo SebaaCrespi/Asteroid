@@ -2,7 +2,7 @@ import pygame
 from random import randint
 
 class Meteorito(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self,width):
         pygame.sprite.Sprite.__init__(self)
         self.imagea = pygame.image.load('img/meteorito/meteorito.png')
         self.imageb = pygame.image.load('img/meteorito/meteorito90deg.png')
@@ -14,16 +14,16 @@ class Meteorito(pygame.sprite.Sprite):
         self.imgMeteorito = self.lstimg[self.posimg]
         self.rect = self.imgMeteorito.get_rect()
         self.rect.centery = randint(-500,-60)
-        self.rect.centerx = randint(30,994)
+        self.rect.centerx = randint(30,width -30)
         self.speed = 0.1
         self.out = False
         self.soundboom = pygame.mixer.Sound('sounds/explosionmarian.wav')
         self.timeboom = 9999999
 
-    def movimiento(self,time):
+    def movimiento(self,time,height):
         self.rect.centery += self.speed * time
         self.rect.centerx == self.rect.centerx
-        if self.rect.centery >= 700:
+        if self.rect.bottom == height:
             self.out = True
 
     def explosion(self,seg):
