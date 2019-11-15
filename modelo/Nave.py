@@ -12,6 +12,8 @@ class Nave(pygame.sprite.Sprite):
         self.listaDisparo = []
         self.vida = True
         self.hearts = 3
+        self.timeChange = 1 #AGREGAR UNA IMAGEN DEL OVNI CON LUCES Y HACER BIEN LA FUCION LUCES
+        self.lastshot = 1
         self.soundShot = pygame.mixer.Sound('sounds/disparo2.wav')
 
     def moverIZQ(self,time):
@@ -31,10 +33,13 @@ class Nave(pygame.sprite.Sprite):
 
             if self.posimg > len(self.lstimg) -1:
                 self.posimg = 0
-    def disparar(self):
-        bala = Bala(self.rect.centerx,self.rect.top)
-        self.listaDisparo.append(bala)
-        self.soundShot.play()
+
+    def disparar(self,timeshot):
+        if timeshot - self.lastshot > 0.5 : #LIMITO LOS DISPAROS A 1 POR 0.5
+            self.lastshot = timeshot
+            bala = Bala(self.rect.centerx,self.rect.top)
+            self.listaDisparo.append(bala)
+            self.soundShot.play()
 
     def dibujar(self,superficie):
         superficie.blit(self.image,self.rect)

@@ -7,7 +7,7 @@ class Bala(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = posx
         self.rect.bottom = posy
-        self.speed = 0.1
+        self.speed = 0.7
 
     def trayectoria(self):
         self.rect.top -= self.speed
