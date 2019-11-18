@@ -7,11 +7,35 @@ from modelo.Bala import *
 from modelo.Nave import * 
 from modelo.Meteorito import *
 
-
 width = 1024
 height = 600
 
 lstMeteorito = []
+# BOTON
+class Boton(pygame.sprite.Sprite):
+    def __init__(self,img1,img2,posx,posy):
+        self.imgunselect = img1
+        self.imgselect = img2
+        self.currentimg = self.imgunselect
+        self.rect = self.currentimg.get_rect()
+        self.rect.top = posy
+        self.rect.left = posx
+
+    def update(self,display,cursor):
+        if cursor.colliderect(self.rect):
+            self.currentimg = self.imgselect
+        else:
+            self.currentimg = self.imgunselect
+
+        display.blit(self.currentimg,self.rect)
+        
+# CURSOR
+class Cursor(pygame.Rect):
+    def __init__(self):
+        pygame.Rect.__init__(self,0,0,1,1 )
+    
+    def update(self):
+        self.left,self.top = pygame.mouse.get_pos()
 
 # *-. FUNCIONES .-*
 def disparos(self,superficie,seg):
@@ -61,22 +85,35 @@ def agregarMeteoritos(cant,width):
 
 #--------------------------------------------------
 def asteroid():
-    # IMAGENES DEL JUEGO
+    # SE CREA LA PANTALLA CON UN ANCHO Y ALTO
     window = pygame.display.set_mode((width,height))
+
+     # TITULO 
+    pygame.display.set_caption("Asteroid")
+    
+    # IMAGENES DEL JUEGO
     windowbg = pygame.image.load("img/fondo_galaxy.png")
     tablebg = pygame.image.load("img/bg-table.png")
     heart = pygame.image.load("img/nave/heart.png")
 
-    # TITULO 
-    pygame.display.set_caption("Asteroid")
+    menubg = pygame.image.load('img/menu/fondo_menu.jpg')
+    comenzar = pygame.image.load("img/menu/comenzar.png")
+    comenzarSelect = pygame.image.load("img/menu/comenzar-select.png")
+    records = pygame.image.load("img/menu/records.png")
+    recordsSelect = pygame.image.load("img/menu/records-select.png")
+    salir = pygame.image.load("img/menu/records.png")
 
     # SE CREAN OBJETOS PRINCIPALES PARA COMENZAR
+    cursor = Cursor()
+    comenzarBtn = Boton(comenzar,comenzarSelect,397,368)
     nave = Nave()
     agregarMeteoritos(5,width)
+
     
     # FUENTES
     fontText = pygame.font.Font('fonts/Pixeled.ttf', 8)
     fontEnd = pygame.font.Font('fonts/DroidSans.ttf', 40)
+    fontEndp = pygame.font.Font('fonts/DroidSans.ttf', 25)
 
     # COLORES
     gris  = pygame.Color(125,125,125)
@@ -87,6 +124,21 @@ def asteroid():
 
     # BANDERA PARA FINALIZAR EL JUEGO
     enJuego = True
+
+    #INICIA EL MENÚ
+    menu = True
+
+    while menu == True:
+
+        window.blit(menubg,(0,0))
+        comenzarBtn.update(window,cursor)
+        cursor.update()
+        
+        for evento in pygame.event.get():
+            if evento.type == QUIT:
+                sys.exit(0)
+        
+        pygame.display.flip()
 
     while True:
         time = reloj.tick(60) 
@@ -132,11 +184,12 @@ def asteroid():
                 nave.vida = False
                 enJuego = False
                     
-
-        else:
+        else: #SI enJuego NO es True: (El juego terminó)
             window.blit(windowbg,(0,0))
-            msgend= pygame.font.Font.render(fontEnd,"Fin del juego", 10, gris)
+            msgend= pygame.font.Font.render(fontEnd,"Fin del juego", 1, gris)
             window.blit(msgend,((width/2)-120,(height/2) -50))
+            msgendp= pygame.font.Font.render(fontEndp,"Score:"+str(nave.score), 1, gris)
+            window.blit(msgendp,((width/2)-50,(height/2) +10))
 
 
         pygame.display.flip()

@@ -1,4 +1,5 @@
 import pygame
+
 from modelo.Bala import *
 
 class Nave(pygame.sprite.Sprite):
@@ -21,7 +22,7 @@ class Nave(pygame.sprite.Sprite):
         self.timeChange = 0.05 #AGREGAR UNA IMAGEN DEL OVNI CON LUCES Y HACER BIEN LA FUCION LUCES
         self.dmgrecived = False
         self.timedmg = 99999
-        self.soundDmg = pygame.mixer.Sound('sounds/dmg.wav')
+        self.soundDmg = pygame.mixer.Sound('sounds/dmgc.wav')
         self.lastshot = 1
         self.score = 0
         self.soundShot = pygame.mixer.Sound('sounds/disparo2.wav')

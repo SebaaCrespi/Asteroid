@@ -1,5 +1,7 @@
 import pygame
 
+from pygame.locals import *
+
 class Bala(pygame.sprite.Sprite):
     def __init__(self,posx,posy):
         pygame.sprite.Sprite.__init__(self)
@@ -7,7 +9,7 @@ class Bala(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = posx
         self.rect.bottom = posy
-        self.speed = 0.7
+        self.speed = 3
 
     def trayectoria(self):
         self.rect.top -= self.speed
