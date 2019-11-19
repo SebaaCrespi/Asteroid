@@ -11,15 +11,15 @@ width = 1024
 height = 600
 
 lstMeteorito = []
+
 # BOTON
 class Boton(pygame.sprite.Sprite):
     def __init__(self,img1,img2,posx,posy):
         self.imgunselect = img1
         self.imgselect = img2
         self.currentimg = self.imgunselect
-        self.rect = self.currentimg.get_rect()
-        self.rect.top = posy
-        self.rect.left = posx
+        self.rect = self.currentimg.get_rect() 
+        self.rect.left,self.rect.top = (posx,posy)
 
     def update(self,display,cursor):
         if cursor.colliderect(self.rect):
@@ -28,7 +28,7 @@ class Boton(pygame.sprite.Sprite):
             self.currentimg = self.imgunselect
 
         display.blit(self.currentimg,self.rect)
-        
+
 # CURSOR
 class Cursor(pygame.Rect):
     def __init__(self):
@@ -83,78 +83,53 @@ def agregarMeteoritos(cant,width):
         lstMeteorito.append(m)
         i += 1
 
-#--------------------------------------------------
-def asteroid():
-    # SE CREA LA PANTALLA CON UN ANCHO Y ALTO
-    window = pygame.display.set_mode((width,height))
+def comenzarJuego(window,cursor):
 
-     # TITULO 
-    pygame.display.set_caption("Asteroid")
-    
     # IMAGENES DEL JUEGO
     windowbg = pygame.image.load("img/fondo_galaxy.png")
     tablebg = pygame.image.load("img/bg-table.png")
     heart = pygame.image.load("img/nave/heart.png")
+    finbg = pygame.image.load("img/fin/fondo-fin.png")
+    volver = pygame.image.load("img/fin/volver.png")
+    volverselect = pygame.image.load("img/fin/volver-select.png")
 
-    menubg = pygame.image.load('img/menu/fondo_menu.jpg')
-    comenzar = pygame.image.load("img/menu/comenzar.png")
-    comenzarSelect = pygame.image.load("img/menu/comenzar-select.png")
-    records = pygame.image.load("img/menu/records.png")
-    recordsSelect = pygame.image.load("img/menu/records-select.png")
-    salir = pygame.image.load("img/menu/records.png")
-
-    # SE CREAN OBJETOS PRINCIPALES PARA COMENZAR
-    cursor = Cursor()
-    comenzarBtn = Boton(comenzar,comenzarSelect,397,368)
+    # SE CREAN OBJETOS PRINCIPALES PARA COMENZARs
     nave = Nave()
     agregarMeteoritos(5,width)
+    volverbtn = Boton(volver,volverselect,(width/2)-111,(height/2) + 90)
 
-    
     # FUENTES
     fontText = pygame.font.Font('fonts/Pixeled.ttf', 8)
-    fontEnd = pygame.font.Font('fonts/DroidSans.ttf', 40)
-    fontEndp = pygame.font.Font('fonts/DroidSans.ttf', 25)
+    fontEndp = pygame.font.Font('fonts/Pixeled.ttf', 18)
 
     # COLORES
     gris  = pygame.Color(125,125,125)
     blanco  = pygame.Color(255,255,255)
+    
 
     # RELOJ 
     reloj = pygame.time.Clock()
 
     # BANDERA PARA FINALIZAR EL JUEGO
     enJuego = True
+    volverMenu = False
 
-    #INICIA EL MENÚ
-    menu = True
-
-    while menu == True:
-
-        window.blit(menubg,(0,0))
-        comenzarBtn.update(window,cursor)
-        cursor.update()
-        
-        for evento in pygame.event.get():
-            if evento.type == QUIT:
-                sys.exit(0)
-        
-        pygame.display.flip()
-
-    while True:
+    while not volverMenu:
         time = reloj.tick(60) 
         timer = pygame.time.get_ticks()
         seg = (timer/1000)
         keys = pygame.key.get_pressed()
-
+        cursor.update()
         # CAPTURAR EVENTOS
-        for evento in pygame.event.get():
-            if evento.type == QUIT:
-                sys.exit(0)
-            if enJuego == True:
+
+        if enJuego == True:         
+            for evento in pygame.event.get():
+                if evento.type == QUIT:
+                    sys.exit(0)
                 if evento.type == pygame.KEYDOWN:
                     if evento.key == K_SPACE:
-                        nave.disparar((timer/1000))
-        if enJuego == True:              
+                        nave.disparar((timer/1000)) 
+            
             if keys[K_a] or keys[K_LEFT]:
                 nave.moverIZQ(time)
             if keys[K_d] or keys[K_RIGHT]:
@@ -185,14 +160,69 @@ def asteroid():
                 enJuego = False
                     
         else: #SI enJuego NO es True: (El juego terminó)
-            window.blit(windowbg,(0,0))
-            msgend= pygame.font.Font.render(fontEnd,"Fin del juego", 1, gris)
-            window.blit(msgend,((width/2)-120,(height/2) -50))
-            msgendp= pygame.font.Font.render(fontEndp,"Score:"+str(nave.score), 1, gris)
-            window.blit(msgendp,((width/2)-50,(height/2) +10))
-
+            window.blit(finbg,(0,0))
+            scoretxt = pygame.font.Font.render(fontEndp,str(nave.score), 1, blanco)
+            window.blit(scoretxt,((width/2)+45 ,(height/2) - 40))
+            volverbtn.update(window,cursor)
+        
+            for evento in pygame.event.get():
+                if evento.type == QUIT:
+                    sys.exit(0)
+                if evento.type == pygame.MOUSEBUTTONDOWN:
+                    if volverbtn.currentimg == volverbtn.imgselect:
+                        volverMenu = True
 
         pygame.display.flip()
+#--------------------------------------------------
+def asteroid():
+    # SE CREA LA PANTALLA CON UN ANCHO Y ALTO
+    window = pygame.display.set_mode((width,height))
+
+     # TITULO 
+    pygame.display.set_caption("Asteroid")
+    
+    #IMAGENES DEL MENU
+    menubg = pygame.image.load('img/menu/fondo_menu.jpg')
+    comenzar = pygame.image.load("img/menu/comenzar.png")
+    comenzarSelect = pygame.image.load("img/menu/comenzar-select.png")
+    records = pygame.image.load("img/menu/records.png")
+    recordsSelect = pygame.image.load("img/menu/records-select.png")
+    salir = pygame.image.load("img/menu/salir.png")
+    salirSelect = pygame.image.load("img/menu/salir-select.png")
+
+     # BOTONES DEL MENÚ
+    comenzarBtn = Boton(comenzar,comenzarSelect,396,328)
+    recordsBtn = Boton(records,recordsSelect,386,378)
+    salirBtn = Boton(salir,salirSelect,356,428)
+    
+    # CURSOR PARA EL MENÚ
+    cursor = Cursor()
+
+    #INICIA EL MENÚ
+    menu = True
+
+    while menu == True:
+
+        window.blit(menubg,(0,0))
+        comenzarBtn.update(window,cursor)
+        recordsBtn.update(window,cursor)
+        salirBtn.update(window,cursor)
+        cursor.update()
+        
+        for evento in pygame.event.get():
+            if evento.type == QUIT:
+                sys.exit(0)
+            if evento.type == pygame.MOUSEBUTTONDOWN:
+                if comenzarBtn.currentimg == comenzarBtn.imgselect:
+                    comenzarJuego(window,cursor) 
+                if recordsBtn.currentimg == recordsBtn.imgselect:
+                    pass
+                if salirBtn.currentimg == salirBtn.imgselect:
+                    sys.exit(0)
+        
+        pygame.display.flip()
+
+    
     return 0
 
 if __name__ == '__main__':

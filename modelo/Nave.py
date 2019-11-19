@@ -18,7 +18,7 @@ class Nave(pygame.sprite.Sprite):
         self.speed = 0.3
         self.listaDisparo = []
         self.vida = True
-        self.hearts = 3
+        self.hearts = 0
         self.timeChange = 0.05 #AGREGAR UNA IMAGEN DEL OVNI CON LUCES Y HACER BIEN LA FUCION LUCES
         self.dmgrecived = False
         self.timedmg = 99999
