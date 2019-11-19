@@ -10,8 +10,6 @@ from modelo.Meteorito import *
 width = 1024
 height = 600
 
-lstMeteorito = []
-
 # BOTON
 class Boton(pygame.sprite.Sprite):
     def __init__(self,img1,img2,posx,posy):
@@ -38,7 +36,7 @@ class Cursor(pygame.Rect):
         self.left,self.top = pygame.mouse.get_pos()
 
 # *-. FUNCIONES .-*
-def disparos(self,superficie,seg):
+def disparos(self,lstMeteorito,superficie,seg):
     if len(self.listaDisparo) > 0:
         for bala in self.listaDisparo:
             bala.dibujar(superficie) 
@@ -52,7 +50,7 @@ def disparos(self,superficie,seg):
                         m.explosion(seg)
                         self.score += 1                    
 
-def controlmeteoritos(window,time,self,seg,width,height):
+def controlmeteoritos(window,lstMeteorito,time,self,seg,width,height):
     if len(lstMeteorito) > 0:
             for m in lstMeteorito:
                 if m.out == False: 
@@ -61,22 +59,22 @@ def controlmeteoritos(window,time,self,seg,width,height):
                 else:
                     self.hearts -= 1
                     lstMeteorito.remove(m)
-                    agregarMeteoritos(1,width)
+                    agregarMeteoritos(lstMeteorito,1,width)
 
                 if (m.timeboom + 1) <= seg:
                     lstMeteorito.remove(m)
-                    agregarMeteoritos(1,width)
+                    agregarMeteoritos(lstMeteorito,1,width)
 
                 if m.rect.colliderect(self.rect):
                     lstMeteorito.remove(m)
                     self.damage(seg)
-                    agregarMeteoritos(1,width)
+                    agregarMeteoritos(lstMeteorito,1,width)
                     
 
     if len(lstMeteorito) == 0:
-        agregarMeteoritos(5)
+        agregarMeteoritos(lstMeteorito,5,width)
 
-def agregarMeteoritos(cant,width):
+def agregarMeteoritos(lstMeteorito,cant,width):
     i=0
     while(i < cant):
         m = Meteorito(width)
@@ -84,6 +82,8 @@ def agregarMeteoritos(cant,width):
         i += 1
 
 def comenzarJuego(window,cursor):
+    # MUSICA DE FONDO
+    fondoSound = pygame.mixer.Sound("sounds/fondofin.wav")
 
     # IMAGENES DEL JUEGO
     windowbg = pygame.image.load("img/fondo_galaxy.png")
@@ -95,9 +95,8 @@ def comenzarJuego(window,cursor):
 
     # SE CREAN OBJETOS PRINCIPALES PARA COMENZARs
     nave = Nave()
-    agregarMeteoritos(5,width)
     volverbtn = Boton(volver,volverselect,(width/2)-111,(height/2) + 90)
-
+    lstMeteorito = []
     # FUENTES
     fontText = pygame.font.Font('fonts/Pixeled.ttf', 8)
     fontEndp = pygame.font.Font('fonts/Pixeled.ttf', 18)
@@ -106,11 +105,11 @@ def comenzarJuego(window,cursor):
     gris  = pygame.Color(125,125,125)
     blanco  = pygame.Color(255,255,255)
     
-
     # RELOJ 
     reloj = pygame.time.Clock()
 
     # BANDERA PARA FINALIZAR EL JUEGO
+    perdiste = 1
     enJuego = True
     volverMenu = False
 
@@ -120,16 +119,17 @@ def comenzarJuego(window,cursor):
         seg = (timer/1000)
         keys = pygame.key.get_pressed()
         cursor.update()
-        # CAPTURAR EVENTOS
+           
 
-        if enJuego == True:         
+        if enJuego == True:   
+            # CAPTURAR EVENTOS      
             for evento in pygame.event.get():
                 if evento.type == QUIT:
                     sys.exit(0)
-                if evento.type == pygame.KEYDOWN:
-                    if evento.key == K_SPACE:
-                        nave.disparar((timer/1000)) 
-            
+                #if evento.type == pygame.KEYDOWN:
+                    
+            if keys[K_SPACE]:
+                nave.disparar((timer/1000)) 
             if keys[K_a] or keys[K_LEFT]:
                 nave.moverIZQ(time)
             if keys[K_d] or keys[K_RIGHT]:
@@ -137,29 +137,34 @@ def comenzarJuego(window,cursor):
 
             # MOSTRAR
             window.blit(windowbg,(0,0))
-            controlmeteoritos(window,time,nave,seg,width,height)
+            controlmeteoritos(window,lstMeteorito,time,nave,seg,width,height)
             nave.luces(seg)
             nave.dibujar(window)
-            disparos(nave,window,seg)
+            disparos(nave,lstMeteorito,window,seg)
             window.blit(tablebg,(0,0))
-            timetxt = pygame.font.Font.render(fontText,"TIME: "+str(seg), 1, blanco)
-            window.blit(timetxt,(10,5))
             scoretxt = pygame.font.Font.render(fontText,"SCORE: "+str(nave.score), 1, blanco)
-            window.blit(scoretxt,(10,25))
+            window.blit(scoretxt,(10,0))
             lifestxt = pygame.font.Font.render(fontText,"LIFES: ", 1, blanco)
-            window.blit(lifestxt,(10,45))
+            window.blit(lifestxt,(10,25))
 
             if nave.hearts >= 1:
-                window.blit(heart,(55,50))
+                window.blit(heart,(55,30))
             if nave.hearts >= 2:
-                window.blit(heart,(75,50))
+                window.blit(heart,(75,30))
             if nave.hearts >= 3:
-                window.blit(heart,(95,50))
+                window.blit(heart,(95,30))
             if nave.hearts <= 0:
                 nave.vida = False
                 enJuego = False
                     
         else: #SI enJuego NO es True: (El juego terminó)
+            if perdiste == 1:
+                pygame.mixer.music.stop()
+                fondoSound.play()
+                fondoSound.set_volume(1.0)
+                perdiste += 1
+
+            
             window.blit(finbg,(0,0))
             scoretxt = pygame.font.Font.render(fontEndp,str(nave.score), 1, blanco)
             window.blit(scoretxt,((width/2)+45 ,(height/2) - 40))
@@ -171,17 +176,24 @@ def comenzarJuego(window,cursor):
                 if evento.type == pygame.MOUSEBUTTONDOWN:
                     if volverbtn.currentimg == volverbtn.imgselect:
                         volverMenu = True
-
+                        
         pygame.display.flip()
+
+    fondoSound.stop()
+    
+
 #--------------------------------------------------
 def asteroid():
     # SE CREA LA PANTALLA CON UN ANCHO Y ALTO
     window = pygame.display.set_mode((width,height))
 
-     # TITULO 
+    # TITULO 
     pygame.display.set_caption("Asteroid")
     
-    #IMAGENES DEL MENU
+    # MUSICA DEL JUEGO
+    pygame.mixer.music.load("sounds/musicaJuego.mp3")
+
+    # IMAGENES DEL MENU
     menubg = pygame.image.load('img/menu/fondo_menu.jpg')
     comenzar = pygame.image.load("img/menu/comenzar.png")
     comenzarSelect = pygame.image.load("img/menu/comenzar-select.png")
@@ -190,7 +202,7 @@ def asteroid():
     salir = pygame.image.load("img/menu/salir.png")
     salirSelect = pygame.image.load("img/menu/salir-select.png")
 
-     # BOTONES DEL MENÚ
+    # BOTONES DEL MENÚ
     comenzarBtn = Boton(comenzar,comenzarSelect,396,328)
     recordsBtn = Boton(records,recordsSelect,386,378)
     salirBtn = Boton(salir,salirSelect,356,428)
@@ -200,9 +212,13 @@ def asteroid():
 
     #INICIA EL MENÚ
     menu = True
-
+    musica = 1
     while menu == True:
-
+        if musica == 1:
+            pygame.mixer.music.play(-1,1.7)
+            pygame.mixer.music.set_volume(0.1)
+            musica += 1
+        
         window.blit(menubg,(0,0))
         comenzarBtn.update(window,cursor)
         recordsBtn.update(window,cursor)
@@ -214,7 +230,7 @@ def asteroid():
                 sys.exit(0)
             if evento.type == pygame.MOUSEBUTTONDOWN:
                 if comenzarBtn.currentimg == comenzarBtn.imgselect:
-                    comenzarJuego(window,cursor) 
+                    comenzarJuego(window,cursor)
                 if recordsBtn.currentimg == recordsBtn.imgselect:
                     pass
                 if salirBtn.currentimg == salirBtn.imgselect:

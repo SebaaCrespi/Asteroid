@@ -17,7 +17,8 @@ class Meteorito(pygame.sprite.Sprite):
         self.rect.centerx = randint(30,width -30)
         self.speed = 0.1
         self.out = False
-        self.soundboom = pygame.mixer.Sound('sounds/explosionmarian.wav')
+        self.soundboom = pygame.mixer.Sound('sounds/explosion.wav')
+        self.soundboom.set_volume(0.1)
         self.timeboom = 9999999
 
     def movimiento(self,time,height):

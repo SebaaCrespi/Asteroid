@@ -18,14 +18,16 @@ class Nave(pygame.sprite.Sprite):
         self.speed = 0.3
         self.listaDisparo = []
         self.vida = True
-        self.hearts = 0
+        self.hearts = 3
         self.timeChange = 0.05 #AGREGAR UNA IMAGEN DEL OVNI CON LUCES Y HACER BIEN LA FUCION LUCES
         self.dmgrecived = False
         self.timedmg = 99999
-        self.soundDmg = pygame.mixer.Sound('sounds/dmgc.wav')
+        self.soundDmg = pygame.mixer.Sound('sounds/dmg.wav')
+        self.soundDmg.set_volume(0.1)
         self.lastshot = 1
         self.score = 0
-        self.soundShot = pygame.mixer.Sound('sounds/disparo2.wav')
+        self.soundShot = pygame.mixer.Sound('sounds/disparo.wav') 
+        self.soundShot.set_volume(0.3)
 
 
     def moverIZQ(self,time):
